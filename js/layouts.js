@@ -198,7 +198,7 @@
           { l: "F1", role: "mod" }, { l: "F2", role: "mod" }, { l: "F3", role: "mod" }, { l: "F4", role: "mod" }, 0.5,
           { l: "F5", role: "mod" }, { l: "F6", role: "mod" }, { l: "F7", role: "mod" }, { l: "F8", role: "mod" }, 0.5,
           { l: "F9", role: "mod" }, { l: "F10", role: "mod" }, { l: "F11", role: "mod" }, { l: "F12", role: "mod" }, 0.25,
-          { l: "PRT", role: "mod" }, { l: "SCR", role: "mod" }, { l: "PAU", role: "mod" }
+          { l: "PRT", role: "mod", code: "PrintScreen" }, { l: "SCR", role: "mod", code: "ScrollLock" }, { l: "PAU", role: "mod", code: "Pause" }
         ],
         { yGap: 0.3, keys: [{ l: "`", sub: "~" }, ...numRowCore, 0.25, { l: "INS", role: "mod" }, { l: "HOME", role: "mod" }, { l: "PGUP", role: "mod" }] },
         [...qRowCore, 0.25, { l: "DEL", role: "mod" }, { l: "END", role: "mod" }, { l: "PGDN", role: "mod" }],
@@ -217,14 +217,14 @@
           { l: "F1", role: "mod" }, { l: "F2", role: "mod" }, { l: "F3", role: "mod" }, { l: "F4", role: "mod" }, 0.5,
           { l: "F5", role: "mod" }, { l: "F6", role: "mod" }, { l: "F7", role: "mod" }, { l: "F8", role: "mod" }, 0.5,
           { l: "F9", role: "mod" }, { l: "F10", role: "mod" }, { l: "F11", role: "mod" }, { l: "F12", role: "mod" }, 0.25,
-          { l: "PRT", role: "mod" }, { l: "SCR", role: "mod" }, { l: "PAU", role: "mod" }
+          { l: "PRT", role: "mod", code: "PrintScreen" }, { l: "SCR", role: "mod", code: "ScrollLock" }, { l: "PAU", role: "mod", code: "Pause" }
         ],
         {
           yGap: 0.3,
           keys: [
             { l: "`", sub: "~" }, ...numRowCore, 0.25,
             { l: "INS", role: "mod" }, { l: "HOME", role: "mod" }, { l: "PGUP", role: "mod" }, 0.25,
-            { l: "NUM", role: "mod" }, { l: "/", role: "mod" }, { l: "*", role: "mod" }, { l: "-", role: "mod" }
+            { l: "NUM", role: "mod", code: "NumLock" }, { l: "/", role: "mod", code: "NumpadDivide" }, { l: "*", role: "mod", code: "NumpadMultiply" }, { l: "-", role: "mod", code: "NumpadSubtract" }
           ]
         },
         [
@@ -254,32 +254,6 @@
 
   KB.THEMES = [
     {
-      id: "dafeiyu",
-      name: "大肥鱼 · DeepSeek",
-      isFullSet: true,
-      caseColor: "#e8eef8",
-      caseMat: "ceramic",
-      alphaBg: "#f7f8fc", alphaFg: "#1e2b4d",
-      modBg: "#1e2b4d", modFg: "#e2b36b",
-      accentBg: "#3a66a8", accentFg: "#ffffff",
-      spaceBg: "#f7f8fc", arrowBg: "#66b8e8",
-      arrowFg: "#1e2b4d",
-      rgbColor: "#66b8e8"
-    },
-    {
-      id: "chinatsu",
-      name: "千夏像素 · Chinatsu",
-      isFullSet: true,
-      caseColor: "#eef6f1",
-      caseMat: "ceramic",
-      alphaBg: "#f9fcf9", alphaFg: "#2a2d38",
-      modBg: "#dcf4e6", modFg: "#2a2d38",
-      accentBg: "#2a2d35", accentFg: "#f9fcf9",
-      spaceBg: "#f9fcf9", arrowBg: "#f274a3",
-      arrowFg: "#f9fcf9",
-      rgbColor: "#6ad4b6"
-    },
-    {
       id: "aries",
       name: "爱丽丝像素 · Aries",
       isFullSet: true,
@@ -291,6 +265,19 @@
       spaceBg: "#f8fafd", arrowBg: "#152550",
       arrowFg: "#f8fafd",
       rgbColor: "#19c8ff"
+    },
+    {
+      id: "dafeiyu",
+      name: "大肥鱼 · DeepSeek",
+      isFullSet: true,
+      caseColor: "#dce3ef",
+      caseMat: "ceramic",
+      alphaBg: "#edf1f7", alphaFg: "#4d7ec7",
+      modBg: "#5c8fd6", modFg: "#fffdf5",
+      accentBg: "#4a7ec9", accentFg: "#fffdf5",
+      spaceBg: "#dbe7f8", arrowBg: "#5c8fd6",
+      arrowFg: "#fffdf5",
+      rgbColor: "#5da9ff"
     },
     {
       id: "cream",

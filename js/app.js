@@ -15,6 +15,8 @@
     let activeLayoutId = "75";
     let activeTheme = KB.THEMES[0];
     let activeLight = KB.LIGHTING_PRESETS[0];
+    let themeRequest = 0;
+    let dafeiyuArtwork;
 
     // ---- 1. POPULATE THEME & LIGHTING CARDS ----
     const themeGrid = document.getElementById("theme-grid");
@@ -31,7 +33,17 @@
         </div>
         <div class="theme-name">${th.name}</div>
       `;
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
+        const request = ++themeRequest;
+        if (th.id === "dafeiyu") {
+          try {
+            await loadDafeiyuArtwork();
+          } catch {
+            if (request === themeRequest) showToast("大肥鱼键帽贴图加载失败，请重试");
+            return;
+          }
+          if (request !== themeRequest) return;
+        }
         activeTheme = th;
         themeGrid.querySelectorAll(".theme-card").forEach((c) => c.classList.toggle("active", c.dataset.themeId === th.id));
         studio.applyTheme(th);
@@ -107,7 +119,7 @@
       const volPct = Math.round(studio.audio.getVolume() * 100);
       btnSound.textContent = enabled ? "音效: 开" : "音效: 关";
       btnSound.classList.toggle("active", enabled);
-      btnSound.title = `当前轴体：${profile.name}（点击开关音效，可在右侧「设置」中切换轴体）`;
+      btnSound.title = `当前轴体：${profile.name}（点击开关音效，可在右侧「键盘 → 轴体」中切换轴体）`;
       if (inpSettingSound) inpSettingSound.checked = enabled;
       if (inpSettingUpstroke) inpSettingUpstroke.checked = studio.audio.isUpstrokeEnabled();
       if (inpSettingVolume) inpSettingVolume.value = String(volPct);
@@ -224,6 +236,18 @@
       tab.addEventListener("click", () => switchRightTab(tab.dataset.rtab));
     });
 
+    function switchKeyboardSubTab(target) {
+      document.querySelectorAll("#rtab-keyboard .stab").forEach((t) => {
+        t.classList.toggle("active", t.dataset.ktab === target);
+      });
+      document.querySelectorAll("#rtab-keyboard .sub-body").forEach((b) => {
+        b.classList.toggle("active", b.id === `ktab-${target}`);
+      });
+    }
+    document.querySelectorAll("#rtab-keyboard .stab").forEach((tab) => {
+      tab.addEventListener("click", () => switchKeyboardSubTab(tab.dataset.ktab));
+    });
+
     document.querySelectorAll("#case-mat-grid .chip").forEach((c) => {
       c.addEventListener("click", () => {
         document.querySelectorAll("#case-mat-grid .chip").forEach((x) => x.classList.toggle("active", x === c));
@@ -242,7 +266,7 @@
         document.querySelectorAll("#global-legend-pos .chip").forEach((x) => x.classList.toggle("active", x === c));
         const mode = c.dataset.gpos;
         studio.getAllEntries().forEach((entry) => {
-          // Preserve artwork-only keycaps (e.g. Aries/Chinatsu special keys or custom uploads) without stamping duplicate text on top
+          // Preserve artwork-only keycaps (e.g. preset artwork or custom uploads) without stamping duplicate text on top
           if (entry.cfg.customImage) {
             entry.cfg.showLegend = false;
             studio.updateKeycapVisual(entry);
@@ -380,7 +404,8 @@
     studio.setOnSelectionChange((entries) => {
       syncInspector(entries);
       if (entries && entries.length > 0) {
-        switchRightTab("key");
+        switchRightTab("keyboard");
+        switchKeyboardSubTab("single");
       }
     });
 
@@ -549,12 +574,15 @@
       const file = e.target.files && e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (ev) => {
+      reader.onload = async (ev) => {
         try {
           const data = JSON.parse(ev.target.result);
+          const request = ++themeRequest;
           if (data.themeId) {
             const foundTh = KB.THEMES.find((t) => t.id === data.themeId);
             if (foundTh) {
+              if (foundTh.id === "dafeiyu") await loadDafeiyuArtwork();
+              if (request !== themeRequest) return;
               activeTheme = foundTh;
               themeGrid.querySelectorAll(".theme-card").forEach((c) => {
                 c.classList.toggle("active", c.dataset.themeId === foundTh.id);
@@ -725,16 +753,27 @@
       );
     }
 
-    function preloadFullSetAssets() {
-      return Promise.all([
-        preloadAssetPack(KB.ARIES_SPECIAL_ASSETS, "_ariesImgCache"),
-        preloadAssetPack(KB.CHINATSU_SPECIAL_ASSETS, "_chinatsuImgCache"),
-        preloadAssetPack(KB.DAFEIYU_SPECIAL_ASSETS, "_dafeiyuImgCache")
-      ]);
+    function loadDafeiyuArtwork() {
+      if (!dafeiyuArtwork) {
+        dafeiyuArtwork = new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = "js/dafeiyu_assets.js";
+          script.onload = () => resolve(preloadAssetPack(KB.DAFEIYU_ASSETS, "_dafeiyuImgCache"));
+          script.onerror = () => {
+            script.remove();
+            reject(new Error("大肥鱼键帽贴图加载失败"));
+          };
+          document.head.appendChild(script);
+        }).catch((err) => {
+          dafeiyuArtwork = undefined;
+          throw err;
+        });
+      }
+      return dafeiyuArtwork;
     }
 
     studio.applyLightingPreset(activeLight);
-    preloadFullSetAssets().then(() => {
+    preloadAssetPack(KB.ARIES_SPECIAL_ASSETS, "_ariesImgCache").then(() => {
       switchLayout("75");
       document.getElementById("loading-overlay").classList.add("done");
       setTimeout(() => showToast(`已加载「${activeTheme.name}」完整键帽预设，点击任意键帽可单独编辑`), 600);

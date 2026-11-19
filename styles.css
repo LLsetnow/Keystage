@@ -153,7 +153,7 @@ body.zen-mode #btn-zen { background: var(--glass); border-color: var(--glass-bor
 .side-panel::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.16); border-radius: 4px; }
 
 .panel-tabs {
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px;
   background: rgba(255, 255, 255, 0.04); padding: 3px; border-radius: 10px;
   flex-shrink: 0;
 }
@@ -167,6 +167,30 @@ body.zen-mode #btn-zen { background: var(--glass); border-color: var(--glass-bor
 
 .ptab-body { display: none; flex-direction: column; gap: 14px; }
 .ptab-body.active { display: flex; }
+
+.sub-tabs {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+.stab {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: var(--text-sub);
+  padding: 6px 4px; border-radius: 8px;
+  font-size: 11.5px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.18s;
+}
+.stab:hover { color: var(--text); background: var(--surface-hover); }
+.stab.active {
+  background: rgba(122, 162, 255, 0.16);
+  border-color: rgba(122, 162, 255, 0.45);
+  color: var(--accent);
+}
+
+.sub-body { display: none; flex-direction: column; gap: 14px; }
+.sub-body.active { display: flex; }
 
 .group {
   display: flex; flex-direction: column;

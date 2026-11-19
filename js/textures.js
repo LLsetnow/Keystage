@@ -261,22 +261,103 @@
     }
     drawSubtleGrain(tctx, topW, topH);
 
-    // Optional sparkles/bubbles for Full-Set IP presets (Aries / Chinatsu / Dafeiyu)
-    if (cfg.pixelSparkle && !cfg.customImage) {
-      const bgLow = cfg.bgColor.toLowerCase();
-      if (cfg.pixelTheme === "dafeiyu") {
-        const isDark = bgLow === "#1e2b4d" || bgLow === "#3a66a8";
-        drawPixelSparkle(tctx, topW - 34, 34, 3, isDark ? "#f2cf8d" : "#d9a45b");
-        tctx.save();
+    // Special procedural styling for Dafeiyu pastel baby-blue + milky-white gold-starburst set
+    // Colors are calibrated for Three.js ACESFilmicToneMapping + 1.55 studio key light so they don't wash out
+    if (cfg.pixelTheme === "dafeiyu" && !cfg.customImage) {
+      const style = cfg.dafeiyuStyle || "starburst";
+      tctx.save();
+      if (style === "wave") {
+        // Dreamy baby-blue & milky-white swirled cloud wave (matching number row & F5-F8)
+        tctx.fillStyle = "#5c8fd6";
+        tctx.fillRect(0, 0, topW, topH);
+        tctx.fillStyle = "rgba(226, 238, 252, 0.72)";
         tctx.beginPath();
-        tctx.arc(36, topH - 36, 7, 0, Math.PI * 2);
-        tctx.fillStyle = isDark ? "rgba(168,220,255,0.72)" : "rgba(102,184,232,0.55)";
+        tctx.moveTo(0, topH * 0.60);
+        tctx.bezierCurveTo(topW * 0.28, topH * 0.30, topW * 0.56, topH * 0.88, topW, topH * 0.46);
+        tctx.lineTo(topW, topH);
+        tctx.lineTo(0, topH);
+        tctx.closePath();
+        tctx.fill();
+        tctx.fillStyle = "rgba(226, 238, 252, 0.48)";
+        tctx.beginPath();
+        tctx.moveTo(0, topH * 0.26);
+        tctx.bezierCurveTo(topW * 0.35, topH * 0.04, topW * 0.72, topH * 0.44, topW, topH * 0.16);
+        tctx.lineTo(topW, 0);
+        tctx.lineTo(0, 0);
+        tctx.closePath();
+        tctx.fill();
+      } else if (style === "starburst") {
+        // Warm golden 4-point starburst halo centered behind milky-white alpha legends
+        const cx = topW / 2, cy = topH / 2;
+        const rOuter = Math.min(topW, topH) * 0.40;
+        const rInner = rOuter * 0.42;
+        const grad = tctx.createRadialGradient(cx, cy, rInner * 0.25, cx, cy, rOuter);
+        grad.addColorStop(0, "rgba(235, 186, 62, 0.72)");
+        grad.addColorStop(0.65, "rgba(224, 168, 42, 0.38)");
+        grad.addColorStop(1, "rgba(224, 168, 42, 0)");
+        tctx.fillStyle = grad;
+        tctx.beginPath();
+        tctx.arc(cx, cy, rOuter, 0, Math.PI * 2);
+        tctx.fill();
+
+        tctx.fillStyle = "rgba(218, 158, 32, 0.92)";
+        for (let a = 0; a < 4; a++) {
+          const ang = (a * Math.PI) / 2 + Math.PI / 4;
+          const sx = cx + Math.cos(ang) * rOuter * 0.92;
+          const sy = cy + Math.sin(ang) * rOuter * 0.92;
+          const px = cx + Math.cos(ang + 0.22) * rInner;
+          const py = cy + Math.sin(ang + 0.22) * rInner;
+          const qx = cx + Math.cos(ang - 0.22) * rInner;
+          const qy = cy + Math.sin(ang - 0.22) * rInner;
+          tctx.beginPath();
+          tctx.moveTo(sx, sy);
+          tctx.lineTo(px, py);
+          tctx.lineTo(qx, qy);
+          tctx.closePath();
+          tctx.fill();
+        }
+      } else if (style === "wasd") {
+        // Gaming WASD accent: crisp baby-blue brackets < > and warm golden ribbon underline
+        const cx = topW / 2, cy = topH / 2;
+        tctx.strokeStyle = "#4d7ec7";
+        tctx.lineWidth = 7;
+        tctx.lineCap = "round";
+        tctx.lineJoin = "round";
+        tctx.beginPath();
+        tctx.moveTo(cx - 56, cy - 13);
+        tctx.lineTo(cx - 70, cy);
+        tctx.lineTo(cx - 56, cy + 13);
+        tctx.moveTo(cx + 56, cy - 13);
+        tctx.lineTo(cx + 70, cy);
+        tctx.lineTo(cx + 56, cy + 13);
+        tctx.stroke();
+
+        tctx.fillStyle = "#d99b26";
+        tctx.beginPath();
+        tctx.roundRect ? tctx.roundRect(cx - 46, cy + 52, 92, 13, 6) : tctx.fillRect(cx - 46, cy + 52, 92, 13);
+        tctx.fill();
+      } else if (style === "pastel_mod") {
+        // Subtle soft gloss gradient on baby-blue modifiers
+        const g = tctx.createLinearGradient(0, 0, 0, topH);
+        g.addColorStop(0, "rgba(255,255,255,0.12)");
+        g.addColorStop(1, "rgba(35,70,130,0.14)");
+        tctx.fillStyle = g;
+        tctx.fillRect(0, 0, topW, topH);
+      }
+      tctx.restore();
+    } else if (cfg.pixelSparkle && !cfg.customImage) {
+      const bgLow = cfg.bgColor.toLowerCase();
+      if (cfg.fontStyle === "sunna") {
+        tctx.save();
+        tctx.fillStyle = bgLow === "#fffbfd" ? "#9ce6c8" : "#fffbfd";
+        tctx.beginPath();
+        tctx.arc(topW - 34, 34, 6, 0, Math.PI * 2);
+        tctx.fill();
+        tctx.fillStyle = bgLow === "#fffbfd" ? "#f6b2cb" : "#ffe17d";
+        tctx.beginPath();
+        tctx.arc(34, topH - 34, 5, 0, Math.PI * 2);
         tctx.fill();
         tctx.restore();
-      } else if (cfg.pixelTheme === "chinatsu") {
-        const isDark = bgLow === "#2a2d35" || bgLow === "#f274a3";
-        drawPixelSparkle(tctx, topW - 36, 36, 4, isDark ? "#7ae0ce" : "#5ec9a8");
-        drawPixelSparkle(tctx, 36, topH - 36, 3, isDark ? "#ffe4ef" : "#f88eb8");
       } else {
         const isDark = bgLow === "#152550";
         drawPixelSparkle(tctx, topW - 36, 36, 4, "#00d4ff");
@@ -287,13 +368,61 @@
     if (cfg.showLegend && cfg.legendPos === "top" && (cfg.label || cfg.sub)) {
       tctx.save();
       const scale = (cfg.fontScale || 100) / 100;
-      if (cfg.fontStyle === "pixel") {
+      if (cfg.pixelTheme === "dafeiyu" && !cfg.customImage) {
+        const style = cfg.dafeiyuStyle || "starburst";
+        const combined = cfg.sub ? `${cfg.label}${cfg.sub}` : (cfg.label || "");
+        const len = combined.length;
+        const baseSz = len <= 1 ? 90 : (len === 2 ? 72 : (len === 3 ? 54 : 44));
+        const fontSize = Math.round(baseSz * scale);
+        tctx.font = `900 ${fontSize}px "SF Pro Rounded", "Arial Rounded MT Bold", -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif`;
+        tctx.textAlign = "center";
+        tctx.textBaseline = "middle";
+        if (style === "wave" || style === "pastel_mod") {
+          // Chunky cream-white letters with rich warm golden outline
+          tctx.lineJoin = "round";
+          tctx.lineWidth = Math.max(10, Math.round(fontSize * 0.22));
+          tctx.strokeStyle = "#c78818";
+          tctx.strokeText(combined, topW / 2, topH / 2 + 2);
+          tctx.fillStyle = "#fffdf5";
+          tctx.fillText(combined, topW / 2, topH / 2 + 2);
+        } else {
+          // Milky-white alpha keys: crisp baby-blue letters
+          tctx.fillStyle = cfg.fgColor;
+          tctx.fillText(combined, topW / 2, topH / 2 + 2);
+        }
+      } else if (cfg.fontStyle === "sunna") {
+        tctx.fillStyle = cfg.fgColor;
+        tctx.textBaseline = "middle";
+        const isLong = (cfg.label || "").length >= 3;
+        if (cfg.hiragana) {
+          tctx.textAlign = "left";
+          tctx.font = `800 ${Math.round(68 * scale)}px "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif`;
+          tctx.fillText(cfg.label, topW * 0.17, topH * 0.38);
+          tctx.textAlign = "right";
+          tctx.globalAlpha = 0.78;
+          tctx.font = `700 ${Math.round(34 * scale)}px "Hiragino Maru Gothic ProN", "PingFang SC", sans-serif`;
+          tctx.fillText(cfg.hiragana, topW * 0.84, topH * 0.74);
+          tctx.globalAlpha = 1;
+        } else if (cfg.sub) {
+          tctx.textAlign = "left";
+          const padX = Math.round(topW * 0.16);
+          tctx.font = `700 ${Math.round(38 * scale)}px "SF Pro Rounded", -apple-system, sans-serif`;
+          tctx.globalAlpha = 0.86;
+          tctx.fillText(cfg.sub, padX, topH * 0.28);
+          tctx.globalAlpha = 1;
+          tctx.font = `800 ${Math.round(62 * scale)}px "SF Pro Rounded", -apple-system, sans-serif`;
+          tctx.fillText(cfg.label, padX, topH * 0.66);
+        } else {
+          tctx.textAlign = "center";
+          const mainSize = Math.round((isLong ? 46 : 78) * scale);
+          tctx.font = `800 ${mainSize}px "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif`;
+          tctx.fillText(cfg.label, topW / 2, topH / 2 + 2);
+        }
+      } else if (cfg.fontStyle === "pixel") {
         const bgLow = cfg.bgColor.toLowerCase();
-        const isDark = bgLow === "#152550" || bgLow === "#2a2d35" || bgLow === "#f274a3";
+        const isDark = bgLow === "#152550";
         if (cfg.sub) {
-          const subCol = cfg.pixelTheme === "chinatsu"
-            ? (isDark ? "#9ef0dc" : "#4ea894")
-            : (isDark ? "#72e8ff" : "#288ceb");
+          const subCol = isDark ? "#72e8ff" : "#288ceb";
           drawPixelText(tctx, cfg.sub, topW * 0.34, topH * 0.30, Math.max(4, Math.round(7 * scale)), subCol);
           drawPixelText(tctx, cfg.label, topW * 0.56, topH * 0.64, Math.max(5, Math.round(10 * scale)), cfg.fgColor);
         } else {

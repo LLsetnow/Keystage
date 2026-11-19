@@ -5,7 +5,6 @@
   const TILT_RAD = (6.5 * Math.PI) / 180;
 
   // Build high-detail sculpted Cherry/OEM keycap with rounded corners, top bevel & ergonomic dish
-  // Preserves BoxGeometry's 6 material groups: 0:+x, 1:-x, 2:+y (top), 3:-y (bottom), 4:+z (front), 5:-z (back)
   function createSculptedKeycapGeo(wUnits, hUnits, rowIdx, isSpace) {
     const bw = wUnits * UNIT - KEY_GAP;
     const bd = hUnits * UNIT - KEY_GAP;
@@ -90,6 +89,23 @@
     }
 
     geo.computeVertexNormals();
+
+    // Keep separate top and front artwork and draw the four plain faces together.
+    const faces = geo.groups.slice();
+    const indices = geo.index.array;
+    const groupedIndices = new indices.constructor(indices.length);
+    let offset = 0;
+    geo.clearGroups();
+    [[0, 1, 3, 5], [2], [4]].forEach((slots, materialIndex) => {
+      const start = offset;
+      slots.forEach((slot) => {
+        const face = faces[slot];
+        groupedIndices.set(indices.subarray(face.start, face.start + face.count), offset);
+        offset += face.count;
+      });
+      geo.addGroup(start, offset - start, materialIndex);
+    });
+    geo.setIndex(new THREE.BufferAttribute(groupedIndices, 1));
     return geo;
   }
 
@@ -108,7 +124,9 @@
         pos.setZ(i, pos.getZ(i) > 0 ? pos.getZ(i) - 0.145 : pos.getZ(i) + 0.09);
       }
     }
-    return new THREE.EdgesGeometry(geo, 22);
+    const edges = new THREE.EdgesGeometry(geo, 22);
+    geo.dispose();
+    return edges;
   }
 
   // Audio engine is provided by js/audio.js (KB.createAudioEngine)
@@ -116,6 +134,20 @@
   KB.createStudio = function (container) {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x151821);
+    const keycapShapes = new Map();
+
+    function getKeycapShape(def) {
+      const isSpace = def.role === "space";
+      const profileRow = Math.min(def.row, 3);
+      const key = `${def.w}/${def.h}/${profileRow}/${isSpace}`;
+      if (!keycapShapes.has(key)) {
+        keycapShapes.set(key, {
+          cap: createSculptedKeycapGeo(def.w, def.h, profileRow, isSpace),
+          outline: createKeycapOutlineGeo(def.w, def.h, profileRow)
+        });
+      }
+      return keycapShapes.get(key);
+    }
 
     const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 180);
     const renderer = new THREE.WebGLRenderer({
@@ -276,13 +308,11 @@
         entry.textures.frontTex.dispose();
       }
       if (entry.mesh) {
-        entry.mesh.geometry.dispose();
         if (Array.isArray(entry.mesh.material)) {
           entry.mesh.material.forEach((m) => m.dispose());
         }
       }
       if (entry.outline) {
-        entry.outline.geometry.dispose();
         entry.outline.material.dispose();
       }
     }
@@ -326,11 +356,21 @@
         retiringEntries.push({
           entry,
           elapsed: 0,
-          delay: Math.min(0.12, idx * 0.004),
-          duration: 0.28,
+          delay: Math.min(0.03, idx * 0.0012),
+          duration: 0.13,
           startY: entry.group.position.y
         });
       });
+    }
+
+    function preservePrintedContrast(shader) {
+      // Retain some scene shading while keeping the printed colors legible under bright lights.
+      shader.fragmentShader = shader.fragmentShader.replace(
+        "#include <tonemapping_fragment>",
+        `#include <tonemapping_fragment>
+         vec3 printColor = pow(clamp(diffuseColor.rgb, 0.0, 1.0), vec3(1.16));
+         gl_FragColor.rgb = mix(gl_FragColor.rgb, printColor, 0.82);`
+      );
     }
 
     function updateKeycapVisual(entry) {
@@ -343,21 +383,22 @@
       entry.textures = texs;
 
       const sideColor = new THREE.Color(entry.cfg.bgColor).multiplyScalar(0.93);
-      const mats = entry.mesh.material;
-      // 0:+x, 1:-x, 2:+y (top), 3:-y, 4:+z (front), 5:-z
-      [0, 1, 3, 5].forEach((idx) => {
-        mats[idx].color.copy(sideColor);
-        mats[idx].envMapIntensity = envIntensity * 0.18;
-      });
-      mats[2].map = texs.topTex;
-      mats[2].color.setHex(0xffffff);
-      mats[2].envMapIntensity = envIntensity * 0.14;
-      mats[2].needsUpdate = true;
+      const [shell, top, front] = entry.mesh.material;
+      shell.color.copy(sideColor);
+      shell.envMapIntensity = envIntensity * 0.18;
+      top.map = texs.topTex;
+      top.color.setHex(0xffffff);
+      top.envMapIntensity = envIntensity * 0.14;
+      const presetArtwork = KB.DAFEIYU_ASSETS?.[entry.def.code];
+      const isDafeiyuPrint = entry.cfg.pixelTheme === "dafeiyu" && entry.cfg.customImage &&
+        entry.cfg.customImageUrl === presetArtwork?.url;
+      top.onBeforeCompile = isDafeiyuPrint ? preservePrintedContrast : THREE.Material.prototype.onBeforeCompile;
+      top.needsUpdate = true;
 
-      mats[4].map = texs.frontTex;
-      mats[4].color.setHex(0xffffff);
-      mats[4].envMapIntensity = envIntensity * 0.16;
-      mats[4].needsUpdate = true;
+      front.map = texs.frontTex;
+      front.color.setHex(0xffffff);
+      front.envMapIntensity = envIntensity * 0.16;
+      front.needsUpdate = true;
     }
 
     function loadLayout(layoutId, theme) {
@@ -505,8 +546,8 @@
         if (def.isKnob) {
           const g = new THREE.Group();
           g.position.set(cx, 0.42, cz);
-          const knobColor = theme.id === "dafeiyu" ? 0x1e2b4d : (theme.id === "aries" ? 0x152550 : (theme.id === "chinatsu" ? 0x2a2d35 : 0xd4a853));
-          const notchColor = theme.id === "dafeiyu" ? 0xe2b36b : (theme.id === "aries" ? 0x00d4ff : (theme.id === "chinatsu" ? 0x7ae0ce : 0x16171c));
+          const knobColor = theme.id === "dafeiyu" ? 0x5c8fd6 : (theme.id === "aries" ? 0x152550 : 0xd4a853);
+          const notchColor = theme.id === "dafeiyu" ? 0xe5ad32 : (theme.id === "aries" ? 0x00d4ff : 0x16171c);
           const knobMat = new THREE.MeshStandardMaterial({ color: knobColor, roughness: 0.22, metalness: 0.88 });
           knobMatRef = knobMat;
           const body = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.39, 0.38, 36), knobMat);
@@ -541,22 +582,21 @@
         const group = new THREE.Group();
         group.position.set(cx, baseY, cz);
 
-        const geo = createSculptedKeycapGeo(def.w, def.h, def.row, def.role === "space");
+        const shape = getKeycapShape(def);
         const mats = [];
-        for (let m = 0; m < 6; m++) {
+        for (let m = 0; m < 3; m++) {
           mats.push(new THREE.MeshStandardMaterial({
             color: 0xffffff, roughness: 0.78, metalness: 0.02, envMapIntensity: envIntensity * 0.16, fog: false
           }));
         }
-        const mesh = new THREE.Mesh(geo, mats);
+        const mesh = new THREE.Mesh(shape.cap, mats);
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         mesh.userData.keyId = def.id;
         group.add(mesh);
 
-        const edges = createKeycapOutlineGeo(def.w, def.h, def.row);
         const outline = new THREE.LineSegments(
-          edges,
+          shape.outline,
           new THREE.LineBasicMaterial({ color: 0x7aa2ff, transparent: true, opacity: 0.95 })
         );
         outline.scale.setScalar(1.02);
@@ -642,23 +682,22 @@
         defaultSub: def.sub
       };
 
-      if (theme.id === "aries" || theme.id === "chinatsu" || theme.id === "dafeiyu") {
-        const isChinatsu = theme.id === "chinatsu";
+      if (theme.id === "aries" || theme.id === "dafeiyu") {
         const isDafeiyu = theme.id === "dafeiyu";
         cfg.fontStyle = isDafeiyu ? "sans" : "pixel";
         cfg.pixelTheme = theme.id;
-        const assets = (isDafeiyu ? KB.DAFEIYU_SPECIAL_ASSETS : (isChinatsu ? KB.CHINATSU_SPECIAL_ASSETS : KB.ARIES_SPECIAL_ASSETS)) || {};
-        const cache = (isDafeiyu ? KB._dafeiyuImgCache : (isChinatsu ? KB._chinatsuImgCache : KB._ariesImgCache)) || {};
+        const assets = (isDafeiyu ? KB.DAFEIYU_ASSETS : KB.ARIES_SPECIAL_ASSETS) || {};
+        const cache = (isDafeiyu ? KB._dafeiyuImgCache : KB._ariesImgCache) || {};
         let assetKey = def.code;
-        if (!hasContextMenu && def.code === "Home" && assets.ContextMenu) {
+        if (!isDafeiyu && !hasContextMenu && def.code === "Home" && assets.ContextMenu) {
           assetKey = "ContextMenu";
         }
-        const special = assetKey && assets[assetKey];
-        if (special && cache[assetKey]) {
-          cfg.bgColor = special.bg;
-          cfg.defaultBg = special.bg;
+        const artwork = assetKey && assets[assetKey];
+        if (artwork && cache[assetKey]) {
+          cfg.bgColor = artwork.bg;
+          cfg.defaultBg = artwork.bg;
           cfg.customImage = cache[assetKey];
-          cfg.customImageUrl = special.url;
+          cfg.customImageUrl = artwork.url;
           cfg.texFit = "contain";
           cfg.showLegend = false;
           return cfg;
@@ -667,46 +706,34 @@
         const isF5to8 = /^F[5-8]$/.test(def.label);
         const isF1to12 = /^F([1-9]|1[0-2])$/.test(def.label);
         const isWASD = ["W", "A", "S", "D"].includes(def.label);
+        const isNumRow = (/^Digit[0-9]$/.test(def.code || "") || ["Backquote", "Minus", "Equal"].includes(def.code || ""));
+        const isNumOp = ["NumpadDivide", "NumpadMultiply", "NumpadSubtract"].includes(def.code);
         const isNavOrNumOp = ["PRT", "SCR", "PAU", "INS", "HOME", "PGUP", "END", "PGDN", "NUM", "/", "*", "-", "+"].includes(def.label) && r === "mod";
         if (isDafeiyu) {
-          if (r === "arrow") {
-            cfg.bgColor = "#66b8e8";
-            cfg.fgColor = "#1e2b4d";
-            cfg.pixelSparkle = true;
-          } else if (isF5to8) {
-            cfg.bgColor = "#3a66a8";
-            cfg.fgColor = "#ffffff";
-            cfg.pixelSparkle = true;
-          } else if (isF1to12 || isNavOrNumOp) {
-            cfg.bgColor = "#1e2b4d";
-            cfg.fgColor = "#e2b36b";
-            cfg.pixelSparkle = def.label === "HOME" || def.label === "END" || def.label === "PGUP";
-          } else if (r === "mod") {
-            cfg.bgColor = "#1e2b4d";
-            cfg.fgColor = "#e2b36b";
+          if (isNumRow || isF5to8 || isNumOp) {
+            cfg.bgColor = "#5c8fd6";
+            cfg.fgColor = "#fffdf5";
+            cfg.dafeiyuStyle = "wave";
+          } else if (isF1to12) {
+            cfg.bgColor = "#edf1f7";
+            cfg.fgColor = "#4d7ec7";
+            cfg.dafeiyuStyle = "starburst";
+          } else if (isWASD) {
+            cfg.bgColor = "#edf1f7";
+            cfg.fgColor = "#4d7ec7";
+            cfg.dafeiyuStyle = "wasd";
+          } else if (r === "mod" || r === "arrow" || r === "accent") {
+            cfg.bgColor = "#5c8fd6";
+            cfg.fgColor = "#fffdf5";
+            cfg.dafeiyuStyle = "pastel_mod";
+          } else if (r === "space") {
+            cfg.bgColor = "#5c8fd6";
+            cfg.fgColor = "#fffdf5";
+            cfg.dafeiyuStyle = "wave";
           } else {
-            cfg.bgColor = "#f7f8fc";
-            cfg.fgColor = "#1e2b4d";
-            cfg.pixelSparkle = isWASD;
-          }
-        } else if (isChinatsu) {
-          if (r === "arrow") {
-            cfg.bgColor = "#f274a3";
-            cfg.fgColor = "#f9fcf9";
-            cfg.pixelSparkle = true;
-          } else if (isF5to8) {
-            cfg.bgColor = "#2a2d35";
-            cfg.fgColor = "#f9fcf9";
-            cfg.pixelSparkle = true;
-          } else if (isNavOrNumOp) {
-            const usePink = ["PGUP", "END", "INS", "/", "-"].includes(def.label);
-            cfg.bgColor = usePink ? "#ffe2ee" : "#dcf4e6";
-            cfg.fgColor = "#2a2d38";
-            cfg.pixelSparkle = def.label === "HOME" || def.label === "END";
-          } else {
-            cfg.bgColor = "#f9fcf9";
-            cfg.fgColor = "#2a2d38";
-            cfg.pixelSparkle = isWASD;
+            cfg.bgColor = "#edf1f7";
+            cfg.fgColor = "#4d7ec7";
+            cfg.dafeiyuStyle = "starburst";
           }
         } else {
           if (r === "arrow" || isF5to8) {
@@ -777,10 +804,10 @@
       refreshCaseMaterial();
       refreshRGB();
       if (knobMatRef) {
-        knobMatRef.color.setHex(theme.id === "dafeiyu" ? 0x1e2b4d : (theme.id === "aries" ? 0x152550 : (theme.id === "chinatsu" ? 0x2a2d35 : 0xd4a853)));
+        knobMatRef.color.setHex(theme.id === "dafeiyu" ? 0x5c8fd6 : (theme.id === "aries" ? 0x152550 : 0xd4a853));
       }
       if (knobNotchMatRef) {
-        knobNotchMatRef.color.setHex(theme.id === "dafeiyu" ? 0xe2b36b : (theme.id === "aries" ? 0x00d4ff : (theme.id === "chinatsu" ? 0x7ae0ce : 0x16171c)));
+        knobNotchMatRef.color.setHex(theme.id === "dafeiyu" ? 0xe5ad32 : (theme.id === "aries" ? 0x00d4ff : 0x16171c));
       }
       const hasContextMenu = currentLayout ? currentLayout.keys.some((k) => k.code === "ContextMenu") : true;
       keyEntries.forEach((entry) => {
@@ -987,6 +1014,11 @@
     // Main Render Loop
     const clock = new THREE.Clock();
     let frameCallback = null;
+    let lastFrameTime = 0;
+    let lastInteraction = performance.now();
+    ["pointerdown", "wheel", "keydown", "input"].forEach((event) => {
+      window.addEventListener(event, () => { lastInteraction = performance.now(); }, { passive: true });
+    });
 
     function updateCameraTransform() {
       camera.position.set(
@@ -997,8 +1029,12 @@
       camera.lookAt(cam.target);
     }
 
-    function animate() {
+    function animate(now) {
       requestAnimationFrame(animate);
+      const active = cam.externalControl || cam.dragging || caseMorph || retiringEntries.length ||
+        now - lastInteraction < 900;
+      if (!active && now - lastFrameTime < 1000 / 30 - 2) return;
+      lastFrameTime = now;
       const dt = Math.min(clock.getDelta(), 0.05);
 
       if (frameCallback) frameCallback(dt);
@@ -1039,10 +1075,10 @@
           r.elapsed += dt;
           if (r.elapsed < r.delay) continue;
           const u = Math.min(1, (r.elapsed - r.delay) / r.duration);
-          const e = easeInCubic(u);
+          const e = easeOutCubic(u);
           const sc = Math.max(0.001, 1 - e);
           r.entry.group.scale.setScalar(sc);
-          r.entry.group.position.y = r.startY - e * 0.48;
+          r.entry.group.position.y = r.startY - e * 0.55;
           if (u >= 1) {
             kbPivot.remove(r.entry.group);
             disposeKeyEntry(r.entry);
@@ -1117,7 +1153,7 @@
 
       renderer.render(scene, camera);
     }
-    animate();
+    requestAnimationFrame(animate);
 
     return {
       scene,

@@ -281,7 +281,139 @@
       showToast("已导出键盘配置文件 (.json)");
     }
 
-    // ---- 2. EXPORT ALL KEYCAP PATTERNS + CONFIG (.ZIP) ----
+    // ---- 2. BUILD KEYCAP IMAGE-TO-KEY MANIFEST (keycap_config.json) ----
+    function buildKeycapManifestObject(meta, exportedFiles) {
+      const layout = studio.getLayout();
+      const settings = studio.getSceneSettings();
+      const entries = studio.getAllEntries();
+      const themeId = meta.themeId || "aries";
+      const themeObj = (KB.THEMES || []).find((t) => t.id === themeId) || null;
+      const presetAssets =
+        themeId === "aries" ? (KB.ARIES_SPECIAL_ASSETS || {}) :
+        themeId === "dafeiyu" ? (KB.DAFEIYU_ASSETS || {}) : {};
+
+      const imageToKey = {};
+      const keyToImage = {};
+      let topImageKeys = 0;
+      let sideImageKeys = 0;
+      let customArtworkKeys = 0;
+
+      const keys = entries.map((e, idx) => {
+        const exp = exportedFiles[idx] || {};
+        const keyCode = e.def.code || e.def.id;
+        const presetInfo = e.def.code && presetAssets[e.def.code];
+        const hasCustomImage = Boolean(e.cfg.customImage || e.cfg.customImageUrl);
+        if (hasCustomImage) customArtworkKeys++;
+
+        if (exp.topFile) {
+          topImageKeys++;
+          imageToKey[exp.topFile] = {
+            code: keyCode,
+            id: e.def.id,
+            label: e.cfg.label || "",
+            sub: e.cfg.sub || "",
+            face: "top",
+            w: e.def.w,
+            h: e.def.h,
+            role: e.def.role
+          };
+        }
+        if (exp.sideFile) {
+          sideImageKeys++;
+          imageToKey[exp.sideFile] = {
+            code: keyCode,
+            id: e.def.id,
+            label: e.cfg.label || "",
+            sub: e.cfg.sub || "",
+            face: "side",
+            w: e.def.w,
+            h: e.def.h,
+            role: e.def.role
+          };
+        }
+
+        const keyMapping = {
+          topFile: exp.topFile || null,
+          sideFile: exp.sideFile || null,
+          label: e.cfg.label || "",
+          sub: e.cfg.sub || "",
+          w: e.def.w,
+          h: e.def.h,
+          role: e.def.role,
+          bgColor: e.cfg.bgColor,
+          fgColor: e.cfg.fgColor,
+          showLegend: Boolean(e.cfg.showLegend),
+          legendPos: e.cfg.legendPos || "top",
+          hasCustomImage
+        };
+        if (presetInfo && presetInfo.source) {
+          keyMapping.presetSourceFile = presetInfo.source;
+        }
+        keyToImage[keyCode] = keyMapping;
+
+        return {
+          index: idx + 1,
+          id: e.def.id,
+          code: keyCode,
+          label: e.cfg.label || "",
+          sub: e.cfg.sub || "",
+          x: e.def.x,
+          y: e.def.y,
+          w: e.def.w,
+          h: e.def.h,
+          role: e.def.role,
+          topImage: exp.topFile || null,
+          sideImage: exp.sideFile || null,
+          presetSourceFile: (presetInfo && presetInfo.source) || null,
+          bgColor: e.cfg.bgColor,
+          fgColor: e.cfg.fgColor,
+          showLegend: Boolean(e.cfg.showLegend),
+          legendPos: e.cfg.legendPos || "top",
+          fontStyle: e.cfg.fontStyle || "sans",
+          pattern: e.cfg.pattern || "none",
+          texFit: e.cfg.texFit || "cover",
+          hasCustomImage
+        };
+      });
+
+      return {
+        schema: "keystage.keycap-set/v1",
+        app: "Keystage",
+        exportedAt: new Date().toISOString(),
+        id: themeId,
+        name: themeObj ? themeObj.name : themeId,
+        layoutId: layout ? layout.id : "75",
+        layoutName: layout ? layout.name : "",
+        case: {
+          material: settings.caseMaterial,
+          color: settings.caseColor,
+          rgbEnabled: settings.rgbEnabled,
+          rgbColor: themeObj ? themeObj.rgbColor : null
+        },
+        palette: themeObj ? {
+          alphaBg: themeObj.alphaBg,
+          alphaFg: themeObj.alphaFg,
+          modBg: themeObj.modBg,
+          modFg: themeObj.modFg,
+          accentBg: themeObj.accentBg,
+          accentFg: themeObj.accentFg,
+          spaceBg: themeObj.spaceBg,
+          arrowBg: themeObj.arrowBg,
+          arrowFg: themeObj.arrowFg || themeObj.modFg
+        } : null,
+        summary: {
+          totalKeys: entries.length,
+          topImageKeys,
+          sideImageKeys,
+          customArtworkKeys
+        },
+        imageToKey,
+        keyToImage,
+        keys
+      };
+    }
+
+    // ---- 3. EXPORT ALL KEYCAP PATTERNS + CONFIG (.ZIP) ----
     function buildPreviewSheetCanvas(entries, layout) {
       const unitPx = 112;
       const pad = 48;
@@ -323,37 +455,48 @@
       showToast("正在打包全部键帽图案与配置文件...");
       const files = [];
       const cfgObj = buildConfigObject(meta);
+      const exportedFiles = [];
       let sideCount = 0;
 
       entries.forEach((e, idx) => {
         const num = String(idx + 1).padStart(3, "0");
         const safe = sanitizeKeyName(e);
         const baseName = `${num}_${safe}_${e.def.w}u`;
+        const rec = { topFile: null, sideFile: null };
         if (e.textures && e.textures.topTex && e.textures.topTex.image) {
           const topPath = `keycaps/${baseName}_top.png`;
           files.push({ name: topPath, data: canvasToPngBytes(e.textures.topTex.image) });
           cfgObj.keys[idx].exportedTopFile = topPath;
+          rec.topFile = topPath;
         }
         if (e.cfg.showLegend && e.cfg.legendPos === "side" && e.textures && e.textures.frontTex && e.textures.frontTex.image) {
           const sidePath = `keycaps/${baseName}_side.png`;
           files.push({ name: sidePath, data: canvasToPngBytes(e.textures.frontTex.image) });
           cfgObj.keys[idx].exportedSideFile = sidePath;
+          rec.sideFile = sidePath;
           sideCount++;
         }
+        exportedFiles.push(rec);
       });
 
       // Flat 2D preview contact sheet
       const sheetCanvas = buildPreviewSheetCanvas(entries, layout);
       files.push({ name: "preview_sheet.png", data: canvasToPngBytes(sheetCanvas) });
 
-      // Complete config.json inside the ZIP
+      // Dedicated keycap image-to-key mapping manifest (keycap_config.json)
+      const manifestObj = buildKeycapManifestObject(meta, exportedFiles);
+      const manifestBytes = new TextEncoder().encode(JSON.stringify(manifestObj, null, 2));
+      files.push({ name: "keycap_config.json", data: manifestBytes });
+
+      // Complete studio restore config.json inside the ZIP
       const cfgBytes = new TextEncoder().encode(JSON.stringify(cfgObj, null, 2));
       files.push({ name: "config.json", data: cfgBytes });
 
+      const themeSlug = (meta.themeId || "custom").replace(/[^a-zA-Z0-9_-]/g, "_");
       const zipBlob = buildZipBlob(files);
-      triggerBlobDownload(zipBlob, `Keystage-${layout.id}-keycaps.zip`);
+      triggerBlobDownload(zipBlob, `Keystage-${themeSlug}-${layout.id}-keycaps.zip`);
       const sideMsg = sideCount > 0 ? ` + ${sideCount} 张侧刻图` : "";
-      showToast(`已导出 ${entries.length} 张键帽图案${sideMsg}、总览图与 config.json`);
+      showToast(`已导出 ${entries.length} 张键帽图案${sideMsg}、keycap_config.json 与 config.json`);
     }
 
     // ---- 3. HIGH-RES OVERVIEW IMAGE EXPORT (PNG) ----

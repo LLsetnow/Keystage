@@ -65,51 +65,227 @@
 
     <aside id="right-panel" class="glass side-panel">
       <div class="panel-tabs">
-        <button class="ptab active" data-rtab="theme">外观</button>
-        <button class="ptab" data-rtab="key">单键</button>
-        <button class="ptab" data-rtab="lighting">场景</button>
-        <button class="ptab" data-rtab="settings">设置</button>
+        <button class="ptab active" data-rtab="keyboard">键盘</button>
+        <button class="ptab" data-rtab="scene">场景</button>
         <button class="ptab" data-rtab="export">导出</button>
       </div>
 
-      <!-- Tab 1: Theme & Case -->
-      <div class="ptab-body active" id="rtab-theme">
-        <div class="group">
-          <div class="group-title">整机配色方案</div>
-          <div class="theme-grid" id="theme-grid"></div>
+      <!-- Tab 1: Keyboard (Sub-tabs: Keycap / Case / Switch / Single Key) -->
+      <div class="ptab-body active" id="rtab-keyboard">
+        <div class="sub-tabs" role="tablist" aria-label="键盘定制子菜单">
+          <button class="stab active" data-ktab="keycap">键帽</button>
+          <button class="stab" data-ktab="case">键盘</button>
+          <button class="stab" data-ktab="switch">轴体</button>
+          <button class="stab" data-ktab="single">单键</button>
         </div>
 
-        <div class="group">
-          <div class="group-title">外壳材质与颜色</div>
-          <div class="chip-grid cols-2" id="case-mat-grid">
-            <button class="chip active" data-casemat="aluminum">阳极氧化铝</button>
-            <button class="chip" data-casemat="acrylic">磨砂半透 PC</button>
-            <button class="chip" data-casemat="walnut">北美黑胡桃木</button>
-            <button class="chip" data-casemat="ceramic">陶瓷烤漆</button>
+        <!-- Sub-tab 1-1: Keycap -->
+        <div class="sub-body active" id="ktab-keycap">
+          <div class="group">
+            <div class="group-title">整机配色方案</div>
+            <div class="theme-grid" id="theme-grid"></div>
           </div>
-          <div class="inline-row mt-8">
-            <span class="field-label">套件底色</span>
-            <div class="color-wrap">
-              <input type="color" id="case-color" value="#242731" />
-              <span class="color-hex" id="case-color-hex">#242731</span>
+
+          <div class="group">
+            <div class="group-title">全局刻字方式</div>
+            <div class="chip-grid cols-3" id="global-legend-pos">
+              <button class="chip active" data-gpos="top">全部正刻</button>
+              <button class="chip" data-gpos="side">全部侧刻</button>
+              <button class="chip" data-gpos="none">全部无刻</button>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-title">快捷批量选中</div>
+            <div class="pill-wrap">
+              <button class="mini-pill" data-select-group="all">全选键帽</button>
+              <button class="mini-pill" data-select-group="alpha">字母区</button>
+              <button class="mini-pill" data-select-group="mod">功能大键</button>
+              <button class="mini-pill" data-select-group="accent">点缀键 (ESC/回车)</button>
+              <button class="mini-pill" data-select-group="arrow">方向键</button>
+              <button class="mini-pill" data-select-group="clear">取消选中</button>
             </div>
           </div>
         </div>
 
+        <!-- Sub-tab 1-2: Keyboard Case & Backlight -->
+        <div class="sub-body" id="ktab-case">
+          <div class="group">
+            <div class="group-title">外壳材质与颜色</div>
+            <div class="chip-grid cols-2" id="case-mat-grid">
+              <button class="chip active" data-casemat="aluminum">阳极氧化铝</button>
+              <button class="chip" data-casemat="acrylic">磨砂半透 PC</button>
+              <button class="chip" data-casemat="walnut">北美黑胡桃木</button>
+              <button class="chip" data-casemat="ceramic">陶瓷烤漆</button>
+            </div>
+            <div class="inline-row mt-8">
+              <span class="field-label">套件底色</span>
+              <div class="color-wrap">
+                <input type="color" id="case-color" value="#242731" />
+                <span class="color-hex" id="case-color-hex">#242731</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-title">键盘背光</div>
+            <div class="toggle-row">
+              <span class="field-label">RGB 轴体背光</span>
+              <label class="switch">
+                <input type="checkbox" id="toggle-rgb" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-tab 1-3: Mechanical Switch & Sound -->
+        <div class="sub-body" id="ktab-switch">
+          <div class="group">
+            <div class="switch-group-head">
+              <div class="group-title" style="margin-bottom:0;">机械轴体选择</div>
+              <button class="mini-pill" id="btn-test-switch" title="播放连续敲击与大键试听">试听连打</button>
+            </div>
+            <div class="helper-note" style="margin-top:0;margin-bottom:9px;">
+              不同轴体按真实声学特性合成，并区分字母键、功能大键与空格卫星轴。点击轴体立即试听。
+            </div>
+            <div class="switch-list" id="switch-list"></div>
+          </div>
+
+          <div class="group">
+            <div class="group-title">打字音效设置</div>
+            <div class="toggle-row">
+              <span class="field-label">开启按键音效</span>
+              <label class="switch">
+                <input type="checkbox" id="setting-sound-enabled" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <span class="field-label">模拟按键回弹音</span>
+              <label class="switch">
+                <input type="checkbox" id="setting-upstroke-enabled" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="slider-row mt-8">
+              <div class="slider-head"><span>音效音量</span><span id="val-sound-volume">80%</span></div>
+              <input type="range" id="setting-sound-volume" min="0" max="100" step="5" value="80" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-tab 1-4: Per-Key Inspector & Customizer -->
+        <div class="sub-body" id="ktab-single">
+          <div class="inspector-header">
+            <div>
+              <div class="inspector-title" id="sel-title">逐键定制 · 未选中键帽</div>
+              <div class="inspector-sub" id="sel-sub">点击 3D 键盘任意按键开始编辑（Shift 多选）</div>
+            </div>
+            <button class="mini-pill" id="btn-focus-key" disabled title="拉近镜头单独查看该键帽">特写</button>
+          </div>
+
+          <div id="inspector-empty" class="empty-hint">
+            <div class="empty-key-icon">ESC</div>
+            <p>点击模型上的任意键帽即可单独查看并定制：</p>
+            <ul>
+              <li>自定义键帽颜色与文字内容</li>
+              <li>切换<strong>显示 / 隐藏文字</strong>（无刻）</li>
+              <li>切换<strong>正刻 / 侧刻</strong>文字位置</li>
+              <li>应用内置纹理或上传<strong>自定义贴图</strong></li>
+            </ul>
+            <button class="secondary-btn mt-8" id="btn-pick-sample">选中 ESC 键试试</button>
+          </div>
+
+          <div id="inspector-controls" class="hidden">
+            <div class="group">
+              <div class="group-title">文字显示与刻字位置</div>
+              <div class="toggle-row">
+                <span class="field-label">显示文字</span>
+                <label class="switch">
+                  <input type="checkbox" id="key-show-legend" checked />
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="chip-grid cols-2 mt-6" id="key-pos-grid">
+                <button class="chip active" data-kpos="top">正刻 (键帽顶部)</button>
+                <button class="chip" data-kpos="side">侧刻 (键帽前侧)</button>
+              </div>
+              <div class="inline-row mt-8">
+                <span class="field-label">主字符</span>
+                <input type="text" id="key-label-input" class="text-input" maxlength="10" placeholder="例如 A / ESC / ★" />
+              </div>
+              <div class="inline-row mt-6">
+                <span class="field-label">副字符</span>
+                <input type="text" id="key-sub-input" class="text-input" maxlength="6" placeholder="可选，如 ! / @" />
+              </div>
+              <div class="slider-row mt-8">
+                <div class="slider-head"><span>字号缩放</span><span id="val-font-scale">100%</span></div>
+                <input type="range" id="key-font-scale" min="60" max="150" step="5" value="100" />
+              </div>
+            </div>
+
+            <div class="group">
+              <div class="group-title">键帽配色</div>
+              <div class="inline-row">
+                <span class="field-label">键帽底色</span>
+                <div class="color-wrap">
+                  <input type="color" id="key-bg-color" value="#f0ece3" />
+                  <span class="color-hex" id="key-bg-hex">#F0ECE3</span>
+                </div>
+              </div>
+              <div class="inline-row mt-6">
+                <span class="field-label">字符颜色</span>
+                <div class="color-wrap">
+                  <input type="color" id="key-fg-color" value="#252832" />
+                  <span class="color-hex" id="key-fg-hex">#252832</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <div class="group-title">键帽贴图与纹理</div>
+              <div class="chip-grid cols-3" id="pattern-grid">
+                <button class="chip active" data-pattern="none">纯色哑光</button>
+                <button class="chip" data-pattern="carbon">碳纤维</button>
+                <button class="chip" data-pattern="marble">大理石纹</button>
+                <button class="chip" data-pattern="gradient">赛博渐变</button>
+                <button class="chip" data-pattern="wave">浮世绘浪</button>
+                <button class="chip" data-pattern="pixel">像素格纹</button>
+              </div>
+
+              <div class="upload-row mt-8">
+                <label class="secondary-btn upload-btn" for="key-tex-upload">上传自定义图片贴图</label>
+                <input type="file" id="key-tex-upload" accept="image/*" hidden />
+                <button class="mini-pill" id="btn-clear-tex" title="清除自定义图片">清除</button>
+              </div>
+              <div id="tex-preview-bar" class="tex-preview-bar hidden">
+                <img id="tex-thumb" alt="贴图预览" />
+                <div class="tex-sliders">
+                  <div class="slider-row">
+                    <div class="slider-head"><span>缩放</span><span id="val-tex-scale">100%</span></div>
+                    <input type="range" id="key-tex-scale" min="50" max="220" step="5" value="100" />
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-head"><span>旋转</span><span id="val-tex-rot">0°</span></div>
+                    <input type="range" id="key-tex-rot" min="0" max="360" step="15" value="0" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-pair">
+              <button class="secondary-btn" id="btn-apply-all" title="将当前样式应用到整把键盘">应用到全部</button>
+              <button class="secondary-btn" id="btn-reset-key" title="恢复选中键帽默认样式">重置此键</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Scene & Lighting -->
+      <div class="ptab-body" id="rtab-scene">
         <div class="group">
-          <div class="group-title">全局字符与背光</div>
-          <div class="chip-grid cols-3" id="global-legend-pos">
-            <button class="chip active" data-gpos="top">全部正刻</button>
-            <button class="chip" data-gpos="side">全部侧刻</button>
-            <button class="chip" data-gpos="none">全部无刻</button>
-          </div>
-          <div class="toggle-row mt-8">
-            <span class="field-label">RGB 轴体背光</span>
-            <label class="switch">
-              <input type="checkbox" id="toggle-rgb" checked />
-              <span class="slider"></span>
-            </label>
-          </div>
+          <div class="group-title">书桌环境</div>
           <div class="toggle-row">
             <span class="field-label">完整书桌场景</span>
             <label class="switch">
@@ -119,127 +295,6 @@
           </div>
         </div>
 
-        <div class="group">
-          <div class="group-title">快捷批量选中</div>
-          <div class="pill-wrap">
-            <button class="mini-pill" data-select-group="all">全选键帽</button>
-            <button class="mini-pill" data-select-group="alpha">字母区</button>
-            <button class="mini-pill" data-select-group="mod">功能大键</button>
-            <button class="mini-pill" data-select-group="accent">点缀键 (ESC/回车)</button>
-            <button class="mini-pill" data-select-group="arrow">方向键</button>
-            <button class="mini-pill" data-select-group="clear">取消选中</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab 2: Per-Key Inspector & Customizer -->
-      <div class="ptab-body" id="rtab-key">
-        <div class="inspector-header">
-          <div>
-            <div class="inspector-title" id="sel-title">逐键定制 · 未选中键帽</div>
-            <div class="inspector-sub" id="sel-sub">点击 3D 键盘任意按键开始编辑（Shift 多选）</div>
-          </div>
-          <button class="mini-pill" id="btn-focus-key" disabled title="拉近镜头单独查看该键帽">特写</button>
-        </div>
-
-        <div id="inspector-empty" class="empty-hint">
-          <div class="empty-key-icon">ESC</div>
-          <p>点击模型上的任意键帽即可单独查看并定制：</p>
-          <ul>
-            <li>自定义键帽颜色与文字内容</li>
-            <li>切换<strong>显示 / 隐藏文字</strong>（无刻）</li>
-            <li>切换<strong>正刻 / 侧刻</strong>文字位置</li>
-            <li>应用内置纹理或上传<strong>自定义贴图</strong></li>
-          </ul>
-          <button class="secondary-btn mt-8" id="btn-pick-sample">选中 ESC 键试试</button>
-        </div>
-
-        <div id="inspector-controls" class="hidden">
-          <div class="group">
-            <div class="group-title">文字显示与刻字位置</div>
-            <div class="toggle-row">
-              <span class="field-label">显示文字</span>
-              <label class="switch">
-                <input type="checkbox" id="key-show-legend" checked />
-                <span class="slider"></span>
-              </label>
-            </div>
-            <div class="chip-grid cols-2 mt-6" id="key-pos-grid">
-              <button class="chip active" data-kpos="top">正刻 (键帽顶部)</button>
-              <button class="chip" data-kpos="side">侧刻 (键帽前侧)</button>
-            </div>
-            <div class="inline-row mt-8">
-              <span class="field-label">主字符</span>
-              <input type="text" id="key-label-input" class="text-input" maxlength="10" placeholder="例如 A / ESC / ★" />
-            </div>
-            <div class="inline-row mt-6">
-              <span class="field-label">副字符</span>
-              <input type="text" id="key-sub-input" class="text-input" maxlength="6" placeholder="可选，如 ! / @" />
-            </div>
-            <div class="slider-row mt-8">
-              <div class="slider-head"><span>字号缩放</span><span id="val-font-scale">100%</span></div>
-              <input type="range" id="key-font-scale" min="60" max="150" step="5" value="100" />
-            </div>
-          </div>
-
-          <div class="group">
-            <div class="group-title">键帽配色</div>
-            <div class="inline-row">
-              <span class="field-label">键帽底色</span>
-              <div class="color-wrap">
-                <input type="color" id="key-bg-color" value="#f0ece3" />
-                <span class="color-hex" id="key-bg-hex">#F0ECE3</span>
-              </div>
-            </div>
-            <div class="inline-row mt-6">
-              <span class="field-label">字符颜色</span>
-              <div class="color-wrap">
-                <input type="color" id="key-fg-color" value="#252832" />
-                <span class="color-hex" id="key-fg-hex">#252832</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="group">
-            <div class="group-title">键帽贴图与纹理</div>
-            <div class="chip-grid cols-3" id="pattern-grid">
-              <button class="chip active" data-pattern="none">纯色哑光</button>
-              <button class="chip" data-pattern="carbon">碳纤维</button>
-              <button class="chip" data-pattern="marble">大理石纹</button>
-              <button class="chip" data-pattern="gradient">赛博渐变</button>
-              <button class="chip" data-pattern="wave">浮世绘浪</button>
-              <button class="chip" data-pattern="pixel">像素格纹</button>
-            </div>
-
-            <div class="upload-row mt-8">
-              <label class="secondary-btn upload-btn" for="key-tex-upload">上传自定义图片贴图</label>
-              <input type="file" id="key-tex-upload" accept="image/*" hidden />
-              <button class="mini-pill" id="btn-clear-tex" title="清除自定义图片">清除</button>
-            </div>
-            <div id="tex-preview-bar" class="tex-preview-bar hidden">
-              <img id="tex-thumb" alt="贴图预览" />
-              <div class="tex-sliders">
-                <div class="slider-row">
-                  <div class="slider-head"><span>缩放</span><span id="val-tex-scale">100%</span></div>
-                  <input type="range" id="key-tex-scale" min="50" max="220" step="5" value="100" />
-                </div>
-                <div class="slider-row">
-                  <div class="slider-head"><span>旋转</span><span id="val-tex-rot">0°</span></div>
-                  <input type="range" id="key-tex-rot" min="0" max="360" step="15" value="0" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="btn-pair">
-            <button class="secondary-btn" id="btn-apply-all" title="将当前样式应用到整把键盘">应用到全部</button>
-            <button class="secondary-btn" id="btn-reset-key" title="恢复选中键帽默认样式">重置此键</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab 3: Lighting Presets -->
-      <div class="ptab-body" id="rtab-lighting">
         <div class="group">
           <div class="group-title">预设书桌场景与光照</div>
           <div class="light-list" id="light-list"></div>
@@ -262,42 +317,6 @@
         </div>
       </div>
 
-      <!-- Tab 4: Settings (Switch Acoustics & Audio Controls) -->
-      <div class="ptab-body" id="rtab-settings">
-        <div class="group">
-          <div class="group-title">打字音效设置</div>
-          <div class="toggle-row">
-            <span class="field-label">开启按键音效</span>
-            <label class="switch">
-              <input type="checkbox" id="setting-sound-enabled" checked />
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="toggle-row">
-            <span class="field-label">模拟按键回弹音</span>
-            <label class="switch">
-              <input type="checkbox" id="setting-upstroke-enabled" checked />
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="slider-row mt-8">
-            <div class="slider-head"><span>音效音量</span><span id="val-sound-volume">80%</span></div>
-            <input type="range" id="setting-sound-volume" min="0" max="100" step="5" value="80" />
-          </div>
-        </div>
-
-        <div class="group">
-          <div class="switch-group-head">
-            <div class="group-title" style="margin-bottom:0;">机械轴体选择</div>
-            <button class="mini-pill" id="btn-test-switch" title="播放连续敲击与大键试听">试听连打</button>
-          </div>
-          <div class="helper-note" style="margin-top:0;margin-bottom:9px;">
-            不同轴体按真实声学特性合成，并区分字母键、功能大键与空格卫星轴。点击轴体立即试听。
-          </div>
-          <div class="switch-list" id="switch-list"></div>
-        </div>
-      </div>
-
       <!-- Tab 5: Export Image, Keycap Pack, Config & Camera Video -->
       <div class="ptab-body" id="rtab-export">
         <div class="group">
@@ -308,7 +327,7 @@
             <label class="secondary-btn" for="inp-import-json" style="cursor:pointer;">导入配置 (.JSON)</label>
             <input type="file" id="inp-import-json" accept="application/json,.json" hidden />
           </div>
-          <div class="helper-note">ZIP 包内含全部键帽高清顶面/侧刻 PNG、平面总览图与 config.json。</div>
+          <div class="helper-note">ZIP 包内含全部键帽高清顶面/侧刻 PNG、平面总览图、键位映射清单 keycap_config.json 与 config.json。</div>
         </div>
 
         <div class="group">
@@ -417,8 +436,6 @@
   </script>
 
   <script src="js/aries_assets.js"></script>
-  <script src="js/chinatsu_assets.js"></script>
-  <script src="js/dafeiyu_assets.js"></script>
   <script src="js/layouts.js"></script>
   <script src="js/textures.js"></script>
   <script src="js/desk_scene.js"></script>

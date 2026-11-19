@@ -1004,7 +1004,7 @@
       rebuildCable(-caseW * 0.32, -(caseD / 2) - 0.02);
 
       if (theme) {
-        cableMat.color.set(theme.id === "dafeiyu" ? "#3a66a8" : (theme.id === "aries" ? "#28a8ff" : (theme.id === "chinatsu" ? "#7ad8be" : theme.accentBg)));
+        cableMat.color.set(theme.id === "dafeiyu" ? "#5c8fd6" : (theme.id === "aries" ? "#28a8ff" : theme.accentBg));
         mouseLedMat.color.set(theme.rgbColor || "#19c8ff");
         dacOledMat.color.set(theme.rgbColor || "#62e8ff");
       }
