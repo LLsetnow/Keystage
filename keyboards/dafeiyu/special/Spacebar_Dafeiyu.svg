@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1875" height="300" viewBox="0 0 1875 300">
+  <defs>
+    <linearGradient id="hairGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2c5394"/>
+      <stop offset="65%" stop-color="#3a66a8"/>
+      <stop offset="100%" stop-color="#66b8e8"/>
+    </linearGradient>
+    <linearGradient id="tailGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2a4375"/>
+      <stop offset="100%" stop-color="#192544"/>
+    </linearGradient>
+    <linearGradient id="seaGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#eef5ff"/>
+      <stop offset="100%" stop-color="#dcebff"/>
+    </linearGradient>
+    <linearGradient id="gemGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9ee6ff"/>
+      <stop offset="100%" stop-color="#2d7be5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1875" height="300" fill="#f7f8fc"/>
+  
+      <!-- Soft deep-sea wave band -->
+      <rect x="0" y="0" width="1875" height="300" fill="url(#seaGrad)"/>
+      <path d="M 0 218 Q 160 176 320 218 T 640 218 T 960 218 T 1280 218 T 1600 218 T 1875 218 L 1875 300 L 0 300 Z" fill="#1e2b4d" opacity="0.92"/>
+      <path d="M 0 236 Q 160 198 320 236 T 640 236 T 960 236 T 1280 236 T 1600 236 T 1875 236" fill="none" stroke="#d9a45b" stroke-width="4.5" opacity="0.85"/>
+      <!-- Left branding + spouting mini whale -->
+      <g transform="translate(180,146) scale(1.32)">
+      <path d="M -8 -34 Q -14 -52 -24 -50 M -4 -35 Q 0 -56 8 -54 M 0 -34 Q 10 -50 20 -46" fill="none" stroke="#66b8e8" stroke-width="5" stroke-linecap="round"/>
+      <path d="M -48 6 C -48 -28 -18 -40 12 -34 C 32 -30 42 -12 46 2 C 58 -2 68 -14 74 -26 C 78 -10 74 4 64 12 C 74 16 80 26 76 36 C 64 34 54 26 46 18 C 36 32 14 38 -12 36 C -34 34 -48 24 -48 6 Z" fill="#3a66a8" stroke="#141d36" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M -44 10 C -40 26 -20 34 6 33 C 16 32 24 28 28 22 C 12 18 -4 14 -16 14 C -28 14 -38 12 -44 10 Z" fill="#ffffff"/>
+      <circle cx="-18" cy="-4" r="5.5" fill="#ffffff"/>
+      <circle cx="-16" cy="-4" r="2.6" fill="#141d36"/>
+      <path d="M -34 10 Q -24 17 -14 11" fill="none" stroke="#141d36" stroke-width="3.2" stroke-linecap="round"/>
+      <ellipse cx="-28" cy="4" rx="6" ry="3.5" fill="#ff9ea8" opacity="0.65"/>
+    </g>
+      <text x="326" y="138" font-family="'PingFang SC', 'Hiragino Sans GB', 'SF Pro Rounded', 'Helvetica Neue', Arial, sans-serif" font-size="68" font-weight="900" fill="#1e2b4d" letter-spacing="3">DeepSeek</text>
+      <text x="330" y="192" font-family="'PingFang SC', 'Hiragino Sans GB', 'SF Pro Rounded', 'Helvetica Neue', Arial, sans-serif" font-size="36" font-weight="700" fill="#3a66a8" letter-spacing="4">蓝色大肥鱼 · 鲸鱼娘</text>
+      <!-- Center Hero: Chibi Whale Maid + Tail -->
+      <g transform="translate(1110,178) rotate(12) scale(1.1)">
+      <path d="M -85 48 C -40 42 -12 22 4 -10 C -18 -26 -44 -48 -58 -76 C -22 -70 6 -48 22 -24 C 42 -48 76 -62 110 -56 C 90 -24 64 -4 34 6 C 18 38 -20 62 -82 68 Z" fill="url(#tailGrad)" stroke="#141d36" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M -60 54 C -24 44 2 24 14 -2" fill="none" stroke="#66b8e8" stroke-width="4" stroke-linecap="round" opacity="0.65"/>
+      <circle cx="56" cy="-70" r="7" fill="#a8dcff"/>
+      <circle cx="82" cy="-84" r="5" fill="#66b8e8"/>
+      <circle cx="-18" cy="-76" r="6" fill="#a8dcff"/>
+    </g>
+      <g transform="translate(938,148) scale(1.08)">
+      <!-- Back long flowing hair -->
+      <path d="M -94 12 C -112 45 -108 92 -82 108 C -60 116 -46 100 -42 84 L 42 84 C 46 100 60 116 82 108 C 108 92 112 45 94 12 Z" fill="url(#hairGrad)" stroke="#141d36" stroke-width="5"/>
+      <!-- Curved Ahoge (呆毛) -->
+      <path d="M -6 -88 C -18 -132 -68 -134 -80 -98 C -56 -112 -24 -108 -10 -84 Z" fill="#284c87" stroke="#141d36" stroke-width="4.5" stroke-linejoin="round"/>
+      <!-- Maid Headdress -->
+      <circle cx="-83.4" cy="-46.3" r="18" fill="#ffffff" stroke="#141d36" stroke-width="4"/><circle cx="-69.2" cy="-66.7" r="18" fill="#ffffff" stroke="#141d36" stroke-width="4"/><circle cx="-49.4" cy="-82.5" r="18" fill="#ffffff" stroke="#141d36" stroke-width="4"/><circle cx="-25.7" cy="-92.6" r="18" fill="#ffffff" stroke="#141d36" stroke-width="4"/><circle cx="0.0" cy="-96.0" r="18" fill="#ffffff" stroke="#141d36" stroke-width="4"/><circle cx="25.7" cy="-92.6" r="18" fill="#ffffff" stroke="#141d36" stroke-width="4"/><circle cx="49.4" cy="-82.5" r="18" fill="#ffffff" stroke="#141d36" stroke-width="4"/><circle cx="69.2" cy="-66.7" r="18" fill="#ffffff" stroke="#141d36" stroke-width="4"/><circle cx="83.4" cy="-46.3" r="18" fill="#ffffff" stroke="#141d36" stroke-width="4"/>
+      <!-- Whale-fin ears (left & right) -->
+      <path d="M -78 -14 C -112 -6 -136 10 -144 26 C -122 34 -96 28 -78 14 Z" fill="#1e2b4d" stroke="#141d36" stroke-width="4.5" stroke-linejoin="round"/>
+      <path d="M -134 24 Q -114 20 -96 22 Q -88 16 -80 14 L -82 22 Q -108 32 -134 24 Z" fill="#dce5f2"/>
+      <path d="M 78 -14 C 112 -6 136 10 144 26 C 122 34 96 28 78 14 Z" fill="#1e2b4d" stroke="#141d36" stroke-width="4.5" stroke-linejoin="round"/>
+      <path d="M 134 24 Q 114 20 96 22 Q 88 16 80 14 L 82 22 Q 108 32 134 24 Z" fill="#dce5f2"/>
+      <!-- Cyan Ribbon Bow on right fin-ear -->
+      <g transform="translate(88,-24) rotate(12)">
+        <ellipse cx="-14" cy="0" rx="14" ry="10" fill="#66b8e8" stroke="#141d36" stroke-width="4"/>
+        <ellipse cx="14" cy="0" rx="14" ry="10" fill="#66b8e8" stroke="#141d36" stroke-width="4"/>
+        <circle cx="0" cy="0" r="6" fill="#a8dcff" stroke="#141d36" stroke-width="3.5"/>
+      </g>
+      <!-- Main Hair Dome -->
+      <path d="M -86 12 C -88 -58 -48 -88 0 -88 C 48 -88 88 -58 86 12 C 86 58 50 76 0 76 C -50 76 -86 58 -86 12 Z" fill="url(#hairGrad)" stroke="#141d36" stroke-width="5"/>
+      <!-- Face -->
+      <path d="M -68 6 C -68 -26 -38 -42 0 -42 C 38 -42 68 -26 68 6 C 68 50 38 68 0 68 C -38 68 -68 50 -68 6 Z" fill="#ffe8dc" stroke="#141d36" stroke-width="4.5"/>
+      <!-- Bangs -->
+      <path d="M -72 -6 C -64 -48 -30 -72 0 -72 C 30 -72 64 -48 72 -6 C 58 -16 46 -26 38 -4 C 28 -22 18 -34 10 -6 C 2 -24 -4 -36 -12 -4 C -22 -26 -34 -24 -42 -2 C -52 -20 -62 -16 -72 -6 Z" fill="#3a66a8" stroke="#141d36" stroke-width="4.5" stroke-linejoin="round"/>
+      <!-- Hair Highlight -->
+      <path d="M -38 -44 Q -18 -56 2 -48 Q -16 -38 -34 -34 Z" fill="#a8dcff" opacity="0.65"/>
+      <ellipse cx="22" cy="-46" rx="10" ry="6" fill="#a8dcff" opacity="0.55"/>
+      
+          <ellipse cx="-32" cy="14" rx="16" ry="18" fill="#141d36"/>
+          <ellipse cx="-32" cy="18" rx="13" ry="13" fill="#3a66a8"/>
+          <ellipse cx="-32" cy="23" rx="9" ry="7" fill="#a8dcff"/>
+          <circle cx="-37" cy="9" r="5.5" fill="#ffffff"/>
+          <circle cx="-26" cy="20" r="2.5" fill="#ffffff"/>
+          <ellipse cx="32" cy="14" rx="16" ry="18" fill="#141d36"/>
+          <ellipse cx="32" cy="18" rx="13" ry="13" fill="#3a66a8"/>
+          <ellipse cx="32" cy="23" rx="9" ry="7" fill="#a8dcff"/>
+          <circle cx="27" cy="9" r="5.5" fill="#ffffff"/>
+          <circle cx="38" cy="20" r="2.5" fill="#ffffff"/>
+          <ellipse cx="-52" cy="30" rx="11" ry="6" fill="#ff9ea8" opacity="0.72"/>
+          <ellipse cx="52" cy="30" rx="11" ry="6" fill="#ff9ea8" opacity="0.72"/>
+          <path d="M -13 38 Q 0 58 13 38 Q 0 42 -13 38 Z" fill="#e87a7a" stroke="#141d36" stroke-width="3.5" stroke-linejoin="round"/>
+        
+    </g>
+      <!-- Right side: Rice Bowl + Thought Bubble -->
+      <g transform="translate(1352,162) scale(1.18)">
+      <!-- Steam wisps -->
+      <path d="M -26 -54 Q -34 -72 -22 -86 M 0 -62 Q -8 -82 4 -98 M 26 -54 Q 18 -72 30 -86" fill="none" stroke="#a8dcff" stroke-width="5.5" stroke-linecap="round"/>
+      <!-- Steaming White Rice Mound -->
+      <path d="M -56 -4 C -54 -44 -28 -54 0 -54 C 28 -54 54 -44 56 -4 Z" fill="#ffffff" stroke="#141d36" stroke-width="4.5"/>
+      <circle cx="-20" cy="-26" r="4" fill="#dbe3f0"/>
+      <circle cx="14" cy="-32" r="4" fill="#dbe3f0"/>
+      <circle cx="2" cy="-16" r="3.5" fill="#dbe3f0"/>
+      <!-- Navy & Gold Ceramic Bowl -->
+      <path d="M -62 -6 L 62 -6 C 58 34 36 52 0 52 C -36 52 -58 34 -62 -6 Z" fill="#1e2b4d" stroke="#141d36" stroke-width="4.5" stroke-linejoin="round"/>
+      <rect x="-26" y="50" width="52" height="12" rx="4" fill="#1e2b4d" stroke="#141d36" stroke-width="4"/>
+      <path d="M -52 10 L 52 10" stroke="#d9a45b" stroke-width="5"/>
+      <path d="M -44 24 Q -22 16 0 24 Q 22 32 44 24" fill="none" stroke="#66b8e8" stroke-width="3.5" stroke-linecap="round"/>
+    </g>
+      <rect x="1478" y="76" width="332" height="122" rx="61" fill="#ffffff" stroke="#1e2b4d" stroke-width="6"/>
+      <text x="1644" y="128" font-family="'PingFang SC', 'Hiragino Sans GB', 'SF Pro Rounded', 'Helvetica Neue', Arial, sans-serif" font-size="28" font-weight="600" fill="#6b7280" text-anchor="middle">已思考（用时 13 秒）&gt;</text>
+      <text x="1644" y="172" font-family="'PingFang SC', 'Hiragino Sans GB', 'SF Pro Rounded', 'Helvetica Neue', Arial, sans-serif" font-size="34" font-weight="800" fill="#3a66a8" text-anchor="middle">今天也要摸鱼吃白饭</text>
+      <!-- Gold & ice sparkles -->
+      <path d="M 752 58 Q 752 72 766 72 Q 752 72 752 86 Q 752 72 738 72 Q 752 72 752 58 Z" fill="#d9a45b"/>
+      <path d="M 1176 53 Q 1176 66 1189 66 Q 1176 66 1176 79 Q 1176 66 1163 66 Q 1176 66 1176 53 Z" fill="#66b8e8"/>
+      <path d="M 1442 51 Q 1442 62 1453 62 Q 1442 62 1442 73 Q 1442 62 1431 62 Q 1442 62 1442 51 Z" fill="#d9a45b"/>
+      <path d="M 68 54 Q 68 66 80 66 Q 68 66 68 78 Q 68 66 56 66 Q 68 66 68 54 Z" fill="#d9a45b"/>
+    
+</svg>
